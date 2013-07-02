@@ -13,6 +13,20 @@ interface ActionInterface
     CONST STATUS_PUBLISHED = 'published';
     CONST STATUS_FROZEN    = 'frozen';
 
+
+    /**
+     * @param string $type
+     * @param ArrayCollection $componentCollection
+     * @return void
+     */
+    public function addComponentCollection($type, $componentCollection);
+    
+    /**
+     * @param string $type type
+     * @return ComponentCollection
+     */
+    public function getComponentCollection($type);
+
     /**
      * @param string                    $type                 type
      * @param string|ComponentInterface $component            component

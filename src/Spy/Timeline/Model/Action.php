@@ -61,6 +61,16 @@ class Action implements ActionInterface
      * @var array
      */
     protected $timelines;
+    
+    /**
+     * @var array
+     */
+    protected $componentCollections = array();
+        
+    /**
+     * @var boolean
+     */
+    protected $hasComponentCollections = false;
 
     /**
      * Constructor
@@ -70,6 +80,31 @@ class Action implements ActionInterface
         $this->createdAt        = new DateTime();
         $this->actionComponents = array();
         $this->timelines        = array();
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function addComponentCollection($type, $componentCollection) 
+    { 
+        $this->hasComponentCollections = true;
+        $this->componentCollections[$type] = $componentCollection;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getComponentCollection($type) 
+    { 
+        return (array_key_exists($type, $this->componentCollections) == false)? null : $this->componentCollections[$type];
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function hasComponentCollection() 
+    { 
+        return $this->hasComponentCollections;
     }
 
     /**
