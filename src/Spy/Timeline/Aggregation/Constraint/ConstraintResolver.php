@@ -88,6 +88,6 @@ class ConstraintResolver
     public function declineAggregation() 
     { 
         $this->setStatus(self::DECLINED_AGGREGATION);
-        return this;
+        return $this;
     }
 }
