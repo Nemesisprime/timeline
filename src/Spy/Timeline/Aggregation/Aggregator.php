@@ -54,8 +54,16 @@ class Aggregator
             if ($first === $second) {
                 return 0;
             }
+            
+            if ($first instanceof TimelineInterface) {
+                $first = $first->getAction();
+            }
+            
+            if ($second instanceof TimelineInterface) {
+                $second = $second->getAction();
+            }
          
-            return (float) $first->getCreated()->format("U.u") < (float) $second->getCreated()->format("U.u") ? -1 : 1;
+            return (float) $first->getCreatedAt()->format("U.u") < (float) $second->getCreatedAt()->format("U.u") ? -1 : 1;
         });
     
         return $actions;
