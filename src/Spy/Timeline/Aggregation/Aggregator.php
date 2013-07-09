@@ -83,9 +83,8 @@ class Aggregator
         //Filter through the collection and check to see if we should aggregate and of the actions, if so, then we go ahead and 
         //Sort them into individual groups based on how we aggregate.
         
-        $actions = new ArrayCollection();
-            
         $constrained_actions = array();
+        $actions = new ArrayCollection();
         
         foreach ($collection as $key => $action) 
         {
@@ -93,40 +92,55 @@ class Aggregator
                 $action = $action->getAction();
             }
             
-            foreach ($this->constraints as $constraint) {
-                $resolver_response = $constraint->shouldAggregate($action, new ConstraintResolver());
+            if($response = $this->matchesConstraint($action))
+            { 
+                list($resolver_response, $constraint) = $response;
                 
-                /*if (!$resolver_response instanceof ConstraintResolverInterface) {
-                    throw new \Exception("Constraint must return an instance of ConstraintResolverInterface!");
-                }*/
-                
-                if($resolver_response->getStatus() == ConstraintResolver::ACCEPTED_AGGREGATION)
-                {   
-                    $constrainted_component = $action->getComponent($resolver_response->getConstraintComponent())->getId();
-                        $constrained_actions[$constraint->getName()][$constrainted_component]["action"] = $collection[$key]; //Always replace with the most up to date action
-                        foreach($resolver_response->getCollectionComponents() as $component_name) //Loop in components...
-                        { 
-                            $collected_component = $action->getComponent($component_name);
-                            
-                            //Thinking there is some error to force us to see if this mehod exists...
-                            if(method_exists($collected_component, "getData"))
-                            {
-                                $collected_component = $collected_component->getData();
-                            }
-                            
-                            if(empty($constrained_actions[$constraint->getName()][$constrainted_component]['componentsCollections'][$component_name])) 
-                            { 
-                                $constrained_actions[$constraint->getName()][$constrainted_component]['componentsCollections'][$component_name] = new ArrayCollection();
-                            }
-                            $constrained_actions[$constraint->getName()][$constrainted_component]['componentsCollections'][$component_name]->add($collected_component);
-                        }
-                } else { 
-                    $actions->add($collection[$key]);
+                $constrainted_component = $action->getComponent($resolver_response->getConstraintComponent())->getId();
+                $constrained_actions[$constraint->getName()][$constrainted_component]["action"] = $collection[$key]; //Always replace with the most up to date action
+                foreach($resolver_response->getCollectionComponents() as $component_name) //Loop in components...
+                { 
+                    $collected_component = $action->getComponent($component_name);
+                    
+                    //Thinking there is some error to force us to see if this mehod exists...
+                    if(method_exists($collected_component, "getData"))
+                    {
+                        $collected_component = $collected_component->getData();
+                    }
+                    
+                    if(empty($constrained_actions[$constraint->getName()][$constrainted_component]['componentsCollections'][$component_name])) 
+                    { 
+                        $constrained_actions[$constraint->getName()][$constrainted_component]['componentsCollections'][$component_name] = new ArrayCollection();
+                    }
+                    $constrained_actions[$constraint->getName()][$constrainted_component]['componentsCollections'][$component_name]->add($collected_component);
                 }
-            }   
+            } else { 
+                $actions->set($collection[$key]->getId(), $collection[$key]);
+            }
+            
         }
-
+        
         return $this->mergeAggregatedActions($actions, $constrained_actions);
+    }
+    
+    /**
+     * Matches the action with the most relevant constraint if applicable.
+     * 
+     * @param ActionInterface $action
+     * @return void
+     */
+    public function matchesConstraint($action)
+    { 
+        foreach ($this->constraints as $constraint) {
+            $resolver_response = $constraint->shouldAggregate($action, new ConstraintResolver());
+            
+            if($resolver_response->getStatus() == ConstraintResolver::ACCEPTED_AGGREGATION)
+            {   
+                return array($resolver_response, $constraint);
+            }
+        }
+        
+        return false;
     }
     
     /**
