@@ -66,7 +66,7 @@ class Aggregator
             return (float) $first->getCreatedAt()->format("U.u") < (float) $second->getCreatedAt()->format("U.u") ? -1 : 1;
         });
     
-        return $actions;
+        return $iterator;
     }
 
     /**
