@@ -86,7 +86,7 @@ class Aggregator
         $constrained_actions = array();
         $actions = new ArrayCollection();
         
-        foreach ($collection as $key => $action) 
+        foreach ($collection as $key => $action)
         {
             if ($action instanceof TimelineInterface) {
                 $action = $action->getAction();
@@ -97,7 +97,9 @@ class Aggregator
                 list($resolver_response, $constraint) = $response;
                 
                 $constrainted_component = $action->getComponent($resolver_response->getConstraintComponent())->getId();
-                $constrained_actions[$constraint->getName()][$constrainted_component]["action"] = $collection[$key]; //Always replace with the most up to date action
+                if(empty($constrained_actions[$constraint->getName()][$constrainted_component]["action"] )) {
+                    $constrained_actions[$constraint->getName()][$constrainted_component]["action"] = $collection[$key]; //Always replace with the most up to date action
+                }
                 foreach($resolver_response->getCollectionComponents() as $component_name) //Loop in components...
                 { 
                     $collected_component = $action->getComponent($component_name);
