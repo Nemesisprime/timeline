@@ -63,7 +63,7 @@ class Aggregator
                 $second = $second->getAction();
             }
          
-            return (float) $first->getCreatedAt()->format("U.u") < (float) $second->getCreatedAt()->format("U.u") ? -1 : 1;
+            return (float) $first->getCreatedAt()->getTimestamp() > (float) $second->getCreatedAt()->getTimestamp() ? -1 : 1;
         });
     
         return $iterator;
